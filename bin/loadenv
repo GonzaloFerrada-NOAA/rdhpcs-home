@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Load modules:
+module load ruby ncview netcdf-fortran/4.6.1
+module load xxdiff
+module load nco cdo ncl
+module load rocoto
+module load wgrib2
+
+source /scratch3/BMC/gsd-fv3-dev/Gonzalo.Ferrada/miniconda3/etc/profile.d/conda.sh
+
+module list
+which python
