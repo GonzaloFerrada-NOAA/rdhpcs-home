@@ -45,7 +45,7 @@ fi
 
 # --- 4. Logic: QoS and Log Naming ---
 # Set QoS based on total minutes
-qos="normal"
+qos="batch"
 [[ $total_mins -le 30 ]] && qos="debug"
 
 # Sanitize script name for log file:
@@ -66,6 +66,16 @@ if [[ -n "$nodes" ]]; then
 else
     res_line="#SBATCH --ntasks=${tasks}"
 fi
+
+echo "#SBATCH --job-name=${clean_name:0:8}
+${res_line}
+#SBATCH --time=${time_str}
+#SBATCH --output=${logfile}
+#SBATCH --account=${account}
+#SBATCH --partition=hera
+#SBATCH --qos=${qos}
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=${USER}@noaa.gov"
 
 # --- 5. Submit ---
 sbatch <<EOF

@@ -1,8 +1,14 @@
 #!/bin/bash
 
-CURRENTDIR=$(basename "$PWD")
+JOBFILE="${1:-$(basename "$PWD")}"
+XMLFILE="${JOBFILE}.xml"
+DBFILE="${JOBFILE}.db"
+
+if [[ ! -f "$XMLFILE" ]]; then
+  echo "Error: job XML not found: $XMLFILE" >&2
+  exit 1
+fi
 
 echo $(date)
-echo "rocotorun -d ${CURRENTDIR}.db -w ${CURRENTDIR}.xml"
-rocotorun -d ${CURRENTDIR}.db -w ${CURRENTDIR}.xml
-
+echo "rocotorun -d ${DBFILE} -w ${XMLFILE}"
+/apps/rocoto/1.3.7/bin/rocotorun -d "${DBFILE}" -w "${XMLFILE}"

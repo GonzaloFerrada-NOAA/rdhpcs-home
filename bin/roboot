@@ -38,7 +38,7 @@ if [[ -n "$CYCLE" ]]; then
   done
 fi
 
-cmd=(/apps/rocoto/1.3.7/bin/rocotorewind -d "$DBFILE" -w "$XMLFILE")
+cmd=(/apps/rocoto/1.3.7/bin/rocotoboot -d "$DBFILE" -w "$XMLFILE")
 if [[ -n "$CYCLE" ]]; then
   cmd+=(-c "$CYCLE")
 fi

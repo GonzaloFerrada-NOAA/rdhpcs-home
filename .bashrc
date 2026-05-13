@@ -47,6 +47,10 @@ alias l1="ls -1"
 alias ld="ls -lhd"
 alias reload="source ~/.bashrc; clear"
 
+export monet="-d melodies-monet.verification.db -w melodies-monet.verification.xml"
+
+module load gnu/14.2.0 intel/2023.2.0 ncview/2.1.7 netcdf/4.7.0
+
 
 # Shortcuts:
 export SC0="/scratch3/data_untrusted/Gonzalo.Ferrada"
@@ -55,12 +59,16 @@ export SC2="/scratch2/BMC/gsd-fv3-dev/Gonzalo.Ferrada"
 export SC3="/scratch3/BMC/gsd-fv3-dev/Gonzalo.Ferrada"
 export SC4="/scratch4/BMC/gsd-fv3-dev/Gonzalo.Ferrada"
 export SC5="/scratch4/BMC/gsd-fv3-test/Gonzalo.Ferrada"
+export AC3="/scratch3/BMC/acomp/Gonzalo.Ferrada"
+export AC4="/scratch4/BMC/acomp/Gonzalo.Ferrada"
 alias sc0="cd /scratch3/data_untrusted/Gonzalo.Ferrada"
 alias sc1="cd $SC3; echo -e \"\e[1;35m\e[101mThis scratch is decommissioned. Redirecting to $SC3\e[0m\""
 alias sc2="cd $SC4; echo -e \"\e[1;35m\e[101mThis scratch is decommissioned. Redirecting to $SC4\e[0m\""
 alias sc3="cd $SC3"
 alias sc4="cd $SC4"
 alias sc5="cd $SC5"
+alias ac3="cd $AC3"
+alias ac4="cd $AC4"
 alias mat="cd $SC3/MATLAB/UFS"
 alias fire="cd $SC3/FIRE"
 alias work="cd $SC4/global-workflow"
@@ -79,7 +87,7 @@ alias ncview="ncview -repl"
 
 
 # Slurm:
-alias qsme="date; squeue -u Gonzalo.Ferrada -O jobid:12,partition:12,qos:8,name:26,statecompact:3,timeused:10,timelimit:12,numnodes:6,nodelist"
+alias qsme="date; squeue -u Gonzalo.Ferrada -O jobid:12,partition:12,qos:8,account:16,name:50,statecompact:3,timeused:10,timelimit:12,numnodes:6,nodelist"
 alias qs="date; squeue --start --user=Gonzalo.Ferrada"
 
 
@@ -101,7 +109,7 @@ export PYTHONPATH=/scratch1/BMC/gsd-fv3-dev/Gonzalo.Ferrada/HOME/PYTHON/FUNCTION
 # MATLABPATH=$( find /scratch3/BMC/gsd-fv3-dev/Gonzalo.Ferrada/.HOME/MATLAB/matlab-earth-sciences -type d | awk '{ printf ":%s", $1; }' )
 # MATLABPATH=/home/Gonzalo.Ferrada/MATLAB/LARGE:${MATLABPATH}
 # MATLABPATH=/home/Gonzalo.Ferrada/MATLAB/FUNCTIONS:${MATLABPATH}
-MATLABPATH=$SC3/.HOME/MATLAB/matlab-earth-sciences/fx:$SC3/.HOME/MATLAB/SkillMetricsToolbox
+MATLABPATH=$SC3/.HOME/MATLAB/matlab-earth-sciences/fx
 export MATLABPATH
 alias loadmatlab='module load matlab; matlab -nodisplay -nodesktop -nosplash'
 # alias loadmatlab1='module load matlab; matlab -nodesktop -nosplash'

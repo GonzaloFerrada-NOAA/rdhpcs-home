@@ -12,6 +12,8 @@ BEGIN {
   include["/scratch3/BMC/gsd-fv3-dev"]    = 1
   include["/scratch4/BMC/gsd-fv3-dev"]    = 1
   include["/scratch4/BMC/gsd-fv3-test"]   = 1
+  include["/scratch3/BMC/acomp"]   		  = 1
+  include["/scratch4/BMC/acomp"]   		  = 1
   include["/scratch3/NCEPDEV/rstprod"]    = 1
 
   # bold entire line for these:

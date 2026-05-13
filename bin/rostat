@@ -1,8 +1,51 @@
 #!/bin/bash
 
-CURRENTDIR=$(basename "$PWD")
+JOBFILE="${1:-$(basename "$PWD")}"
+XMLFILE="${JOBFILE}.xml"
+DBFILE="${JOBFILE}.db"
+
+if [[ ! -f "$XMLFILE" ]]; then
+  echo "Error: job XML not found: $XMLFILE" >&2
+  exit 1
+fi
+
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+CYCLE=""
+TASK=""
+
+for arg in "$@"; do
+  if [[ "$arg" =~ ^[0-9]+$ ]]; then
+    if [[ -n "$CYCLE" ]]; then
+      echo "Error: multiple numeric args provided; only one cycle is allowed." >&2
+      exit 1
+    fi
+    CYCLE="$arg"
+  else
+    if [[ -n "$TASK" ]]; then
+      echo "Error: multiple task args provided; only one task is allowed." >&2
+      exit 1
+    fi
+    TASK="$arg"
+  fi
+done
+
+if [[ -n "$CYCLE" ]]; then
+  while [[ ${#CYCLE} -lt 12 ]]; do
+    CYCLE="${CYCLE}0"
+  done
+fi
+
+cmd=(/apps/rocoto/1.3.7/bin/rocotostat -d "$DBFILE" -w "$XMLFILE")
+if [[ -n "$CYCLE" ]]; then
+  cmd+=(-c "$CYCLE")
+fi
+if [[ -n "$TASK" ]]; then
+  cmd+=(-t "$TASK")
+fi
 
 echo $(date)
-echo "rocotostat -d ${CURRENTDIR}.db -w ${CURRENTDIR}.xml"
-rocotostat -d ${CURRENTDIR}.db -w ${CURRENTDIR}.xml
-
+echo "${cmd[*]}"
+"${cmd[@]}"
