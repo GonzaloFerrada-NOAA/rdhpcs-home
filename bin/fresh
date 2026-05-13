@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Revert modules to site defaults
+module reset
+
+# Deactivate any conda env if active
+conda deactivate 2>/dev/null || true
+conda deactivate 2>/dev/null || true
+
+# Clear command hash
+hash -r
+unset _LOADENV_ACTIVE
+
+module list

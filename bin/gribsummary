@@ -1,0 +1,127 @@
+#!/gpfs/f6/drsa-fire3/scratch/Gonzalo.Ferrada/miniconda3/bin/python3
+import sys
+import numpy as np
+import pygrib
+from pathlib import Path
+
+# ANSI colors
+RESET = "\033[0m"
+BOLD = "\033[1m"
+BLUE = "\033[34m"
+GREEN = "\033[32m"
+RED = "\033[31m"
+CYAN = "\033[36m"
+YELLOW = "\033[33m"
+PURPLE = "\033[35m"
+BOLD_BLUE = BOLD + BLUE
+
+def fmt_number(value, width):
+    """Format numbers for fixed-width columns."""
+    if value is None or (isinstance(value, float) and np.isnan(value)):
+        return f"{'NaN':>{width}}"
+    return f"{value:{width}.4g}"
+
+def summarize_levels(levels):
+    """Formats a list of levels into a concise string."""
+    levels = sorted(list(set(levels)), reverse=True) # Usually high pressure to low
+    if len(levels) <= 5:
+        return ", ".join(map(str, levels))
+    else:
+        return f"{levels[0]}, {levels[1]} ... {levels[-1]} ({len(levels)} levels)"
+
+def main():
+    if len(sys.argv) != 2:
+        prog = Path(sys.argv[0]).name
+        print(f"Usage: {prog} file.grib2")
+        sys.exit(1)
+
+    filename = sys.argv[1]
+    
+    try:
+        grbs = pygrib.open(filename)
+    except Exception as e:
+        print(f"{RED}Error opening {filename}: {e}{RESET}")
+        sys.exit(1)
+
+    # Dictionary to group slices by variable name
+    var_dict = {}
+
+    print(f"Reading {filename}...")
+
+    for grb in grbs:
+        name = grb.shortName
+        level = grb.level
+        
+        if name not in var_dict:
+            var_dict[name] = {
+                "long_name": grb.name,
+                "units": grb.units,
+                "levels": [],
+                "values": []
+            }
+        
+        var_dict[name]["levels"].append(level)
+        var_dict[name]["values"].append(grb.values)
+
+    grbs.close()
+
+    rows = []
+    for name, info in var_dict.items():
+        # Aggregate data for global stats
+        all_data = np.concatenate([v.flatten() for v in info["values"]])
+        
+        # Identify dimensions
+        num_levels = len(info["levels"])
+        shape_2d = info["values"][0].shape
+        dims = f"({num_levels}, {shape_2d[0]}, {shape_2d[1]})" if num_levels > 1 else f"({shape_2d[0]}, {shape_2d[1]})"
+        
+        # Format level summary
+        level_str = summarize_levels(info["levels"])
+
+        rows.append({
+            "name": name,
+            "long_name": info["long_name"][:30],
+            "units": info["units"][:10],
+            "levels": level_str,
+            "dims": dims,
+            "min": np.nanmin(all_data),
+            "mean": np.nanmean(all_data),
+            "max": np.nanmax(all_data),
+            "missing": np.isnan(all_data).sum()
+        })
+
+    # --- FORMATTING SETUP ---
+    var_width = max([len("Var")] + [len(r["name"]) for r in rows]) + 1
+    ln_width = max([len("long_name")] + [len(r["long_name"]) for r in rows]) + 1
+    unit_width = max([len("Units")] + [len(r["units"]) for r in rows]) + 1
+    lvl_width = max([len("Levels")] + [len(r["levels"]) for r in rows]) + 1
+    dim_width = max([len("Dimensions")] + [len(r["dims"]) for r in rows])
+    num_width = 10
+    miss_width = max(len("N_missing"), max(len(str(r["missing"])) for r in rows))
+
+    total_width = var_width + ln_width + unit_width + lvl_width + dim_width + (num_width * 3) + miss_width + 8
+
+    print(f"\nfile: {filename}")
+    print("-" * total_width)
+    header = (f"{'Var':<{var_width}} {'long_name':<{ln_width}} {'Units':<{unit_width}} "
+              f"{'Levels':<{lvl_width}} {'Dimensions':<{dim_width}} "
+              f"{'Min.':>{num_width}} {'Mean':>{num_width}} {'Max.':>{num_width}} "
+              f"{'N_missing':>{miss_width}}")
+    print(header)
+    print("-" * total_width)
+
+    # --- PRINT LOOP ---
+    for r in rows:
+        line = (f"{BOLD_BLUE}{r['name'] :<{var_width}}{RESET} "
+                f"{CYAN}{r['long_name'] :<{ln_width}}{RESET} "
+                f"{PURPLE}{r['units'] :<{unit_width}}{RESET} "
+                f"{YELLOW}{r['levels'] :<{lvl_width}}{RESET} "
+                f"{r['dims'] :<{dim_width}} "
+                f"{GREEN}{fmt_number(r['min'], num_width)}{RESET} "
+                f"{GREEN}{fmt_number(r['mean'], num_width)}{RESET} "
+                f"{GREEN}{fmt_number(r['max'], num_width)}{RESET} "
+                f"{RED}{r['missing'] :>{miss_width}}{RESET}")
+        print(line)
+
+if __name__ == "__main__":
+    main()

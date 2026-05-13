@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Load modules:
+module purge
+module load Core/24.11
+module use /usw/hpss/modulefiles
+module load hsi
+module load intel/2025.0  cray-hdf5/1.14.3.5 cray-netcdf/4.9.0.17
+module load nco ncview cdo
+module use /autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles
+module load rocoto/1.3.7
+
+source /gpfs/f6/drsa-fire3/scratch/Gonzalo.Ferrada/miniconda3/etc/profile.d/conda.sh
+conda activate base
+module list
+
+echo "Python environment is:"
+which python 
+echo " "
