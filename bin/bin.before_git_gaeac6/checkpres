@@ -1,0 +1,51 @@
+#!/gpfs/f6/drsa-fire3/scratch/Gonzalo.Ferrada/miniconda3/bin/python3
+import sys
+import numpy as np
+from netCDF4 import Dataset
+
+def check_pressure(filepath):
+    print(f"Opening file: {filepath}")
+    
+    try:
+        with Dataset(filepath, 'r') as nc:
+            # Check if variables exist
+            if 'pressure_base' not in nc.variables or 'pressure_p' not in nc.variables:
+                print("Error: File does not contain 'pressure_base' or 'pressure_p' variables.")
+                return
+
+            # Read the variables
+            # We use [:] to load the data into numpy arrays
+            p_base = nc.variables['pressure_base'][:]
+            p_pert = nc.variables['pressure_p'][:]
+            
+            print("Calculating Total Pressure (Base + Perturbation)...")
+            
+            # Calculate Total Pressure
+            total_pressure = p_base + p_pert
+            
+            # Calculate Statistics
+            p_min = np.min(total_pressure)
+            p_mean = np.mean(total_pressure)
+            p_max = np.max(total_pressure)
+            
+            print("-" * 40)
+            print(f"Total Pressure Statistics (Pa):")
+            print(f"  Minimum: {p_min:.4f}")
+            print(f"  Mean:    {p_mean:.4f}")
+            print(f"  Maximum: {p_max:.4f}")
+            print("-" * 40)
+            
+            if p_min < 0:
+                print("\n⚠️  WARNING: Negative Pressure Detected! Model is unstable.")
+            else:
+                print("\n✅ Pressure is physically valid (Positive).")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python check_pressure.py <netcdf_file>")
+        sys.exit(1)
+    
+    check_pressure(sys.argv[1])

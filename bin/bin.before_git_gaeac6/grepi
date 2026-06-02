@@ -1,0 +1,15 @@
+grepi() {
+  local pattern="$1"
+  if [ -z "$pattern" ]; then
+    echo "Usage: grepi <pattern>"
+    return 1
+  fi
+
+  find . -maxdepth 3 -type f ! -size +12M 2>/dev/null | while read -r file; do
+    if [ -r "$file" ]; then
+      grep -I -Hn  -w "$pattern" "$file" 2>/dev/null
+    else
+      echo "⚠️  No read permission for '$file'."
+    fi
+  done
+}
